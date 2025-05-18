@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "277758340353",
+    "firebase_url": "https://flutter-crud-application-cad65-default-rtdb.firebaseio.com",
+    "project_id": "flutter-crud-application-cad65",
+    "storage_bucket": "flutter-crud-application-cad65.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:277758340353:android:2a1cfb917d9062c9a8ff00",
+        "android_client_info": {
+          "package_name": "com.example.crudapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCGI-MO7LuqBLlhyHfMzlSaXsqhbXXPto"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:277758340353:android:82f9959c2f787811a8ff00",
+        "android_client_info": {
+          "package_name": "com.example.login_register_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCGI-MO7LuqBLlhyHfMzlSaXsqhbXXPto"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
