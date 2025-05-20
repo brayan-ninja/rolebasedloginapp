@@ -14,30 +14,25 @@ class LoginScreen extends StatelessWidget {
 
   Future<void> login(BuildContext context) async {
     try {
-      // Show loading indicator
       showDialog(
         context: context,
         barrierDismissible: false,
         builder: (context) => const Center(child: CircularProgressIndicator()),
       );
 
-      // Sign in with email and password
       final userCred = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailCtrl.text.trim(),
         password: passCtrl.text.trim(),
       );
 
-      // Check if email is verified
       if (userCred.user != null && !userCred.user!.emailVerified) {
-        // Close loading indicator
         Navigator.pop(context);
-        
-        // Show verification warning
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
             title: const Text('Email Not Verified'),
-            content: const Text('Please verify your email before logging in. Check your inbox for the verification email.'),
+            content: const Text(
+                'Please verify your email before logging in. Check your inbox.'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
@@ -59,7 +54,6 @@ class LoginScreen extends StatelessWidget {
         return;
       }
 
-      // Get user role from Firestore
       final roleDoc = await FirebaseFirestore.instance
           .collection('users')
           .doc(userCred.user!.uid)
@@ -67,10 +61,8 @@ class LoginScreen extends StatelessWidget {
 
       final role = roleDoc.data()?['role'];
 
-      // Close loading indicator
       Navigator.pop(context);
 
-      // Navigate to appropriate dashboard
       if (role == 'admin') {
         Navigator.pushReplacement(
           context,
@@ -83,9 +75,7 @@ class LoginScreen extends StatelessWidget {
         );
       }
     } on FirebaseAuthException catch (e) {
-      // Close loading indicator
       Navigator.pop(context);
-      
       String errorMessage;
       if (e.code == 'user-not-found') {
         errorMessage = 'No user found with this email.';
@@ -96,12 +86,10 @@ class LoginScreen extends StatelessWidget {
       } else {
         errorMessage = 'Login failed: ${e.message}';
       }
-      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(errorMessage)),
       );
     } catch (e) {
-      // Close loading indicator
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('An error occurred: $e')),
@@ -112,46 +100,129 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: emailCtrl,
-              decoration: const InputDecoration(labelText: 'Email'),
-              keyboardType: TextInputType.emailAddress,
+      backgroundColor: const Color(0xFFFFF3E0), // light cream/orange background
+      appBar: AppBar(
+        title: const Text('Login'),
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: const [
+                BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 5)),
+              ],
             ),
-            TextField(
-              controller: passCtrl,
-              decoration: const InputDecoration(labelText: 'Password'),
-              obscureText: true,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.fitness_center, size: 80, color: Colors.green),
+                const SizedBox(height: 10),
+                const Text(
+                  "Welcome Back!",
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 30),
+
+                // Email Input
+                TextField(
+                  controller: emailCtrl,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.email, color: Colors.black),
+                    labelText: 'Email',
+                    labelStyle: const TextStyle(color: Colors.black),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.green),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 20),
+
+                // Password Input
+                TextField(
+                  controller: passCtrl,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.lock, color: Colors.black),
+                    labelText: 'Password',
+                    labelStyle: const TextStyle(color: Colors.black),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.green),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 30),
+
+                // Login Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    onPressed: () => login(context),
+                    child: const Text('Login', style: TextStyle(fontSize: 20)),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Forgot password
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => ResetPasswordScreen()),
+                      );
+                    },
+                    child: const Text('Forgot Password?',
+                        style: TextStyle(color: Colors.black)),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // Register
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("No account? ",
+                        style: TextStyle(color: Colors.black)),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const RegisterScreen()),
+                        );
+                      },
+                      child: const Text("Register",
+                          style: TextStyle(color: Colors.green)),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => login(context),
-              child: const Text('Login'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const RegisterScreen()),
-                );
-              },
-              child: const Text('No account? Register'),
-            ),
-            const SizedBox(height: 7),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => ResetPasswordScreen()),
-                );
-              },
-              child: const Text('Forgot Password?'),
-            ),
-          ],
+          ),
         ),
       ),
     );
