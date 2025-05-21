@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
           FirebaseAuth.instance.currentUser == null ? '/login' : '/user',
       routes: {
         '/login': (context) => LoginScreen(),
-        '/admin': (context) => AdminHome(),
+        '/admin': (context) => PharmaGoDashboard(),
         '/user': (context) => UserHome(),
         '/frontscreen': (context) => FrontScreen(),
         '/reset-password': (context) => ResetPasswordScreen(),

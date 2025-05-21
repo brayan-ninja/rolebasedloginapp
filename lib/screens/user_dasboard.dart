@@ -52,7 +52,7 @@ class _UserHomeState extends State<UserHome> with SingleTickerProviderStateMixin
     child: ClipRRect(
       borderRadius: BorderRadius.zero, // Optional, for rounded corners
       child: Image.asset(
-        "assets/images/home2.jpg",
+        "assets/images/home3.jpg",
         fit: BoxFit.cover, // Ensures the image covers the whole box
         width: double.infinity,
         height: double.infinity,

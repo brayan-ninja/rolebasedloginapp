@@ -66,7 +66,7 @@ class LoginScreen extends StatelessWidget {
       if (role == 'admin') {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const AdminHome()),
+          MaterialPageRoute(builder: (_) =>  PharmaGoDashboard()),
         );
       } else {
         Navigator.pushReplacement(
