@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart'; // Add in pubspec.yaml
 
+
+
+
+
 class PharmaGoDashboard extends StatefulWidget {
   @override
   _PharmaGoDashboardState createState() => _PharmaGoDashboardState();
 }
 
-class _PharmaGoDashboardState extends State<PharmaGoDashboard> {
+class _PharmaGoDashboardState extends State<PharmaGoDashboard>{
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  final List<String> drawerItems = [
-    'Home',
-    'Medicines',
-    'Orders',
-    'Delivery',
-    'Reports',
-    'Settings'
-  ];
+final Map<String, String> drawerRoutes = {
+  'list': '/list',
+  'Orders': '/orders',
+  'Delivery': '/delivery',
+  'Reports': '/reports',
+  'Settings': '/settings',
+};
+
 
   final Map<String, String> stats = {
     "Medicine Store": "120",
@@ -42,7 +46,7 @@ class _PharmaGoDashboardState extends State<PharmaGoDashboard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
                   CircleAvatar(
-                    backgroundImage: AssetImage("assets/images/back.jpg"), // replace with your logo path
+                    backgroundImage: AssetImage("assets/images/logo.jpg"), // replace with your logo path
                     radius: 30,
                   ),
                   SizedBox(height: 10),
@@ -51,15 +55,20 @@ class _PharmaGoDashboardState extends State<PharmaGoDashboard> {
                 ],
               ),
             ),
-            ...drawerItems.map(
-              (item) => ListTile(
-                title: Text(item, style: TextStyle(color: Colors.white)),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Add navigation here
-                },
-              ),
-            )
+          ...drawerRoutes.keys.map(
+  (item) => ListTile(
+    title: Text(item, style: const TextStyle(color: Colors.white)),
+    onTap: () {
+      Navigator.pop(context); // close drawer
+      final routeName = drawerRoutes[item];
+      if (routeName != null) {
+        Navigator.pushNamed(context, "/list");
+
+      }
+    },
+  ),
+),
+
           ],
         ),
       ),

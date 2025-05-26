@@ -103,6 +103,7 @@ class LoginScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFFFF3E0), // light cream/orange background
       appBar: AppBar(
         title: const Text('Login'),
+        leading: SizedBox.shrink(),
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
       ),

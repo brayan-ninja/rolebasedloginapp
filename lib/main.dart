@@ -7,6 +7,9 @@ import 'package:login_register_app/screens/login_screen.dart';
 import 'package:login_register_app/screens/admin_dashboard.dart';
 import 'package:login_register_app/screens/user_dasboard.dart';
 import 'package:login_register_app/screens/reset_password.dart';
+import 'package:login_register_app/screens/admin/list_screen.dart';
+import 'package:login_register_app/screens/admin/addmedicine_screen.dart';
+import 'package:login_register_app/screens/admin/addlist_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +25,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Genz App',
+      title: 'pharmaGo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
@@ -34,7 +37,11 @@ class MyApp extends StatelessWidget {
         '/user': (context) => UserHome(),
         '/frontscreen': (context) => FrontScreen(),
         '/reset-password': (context) => ResetPasswordScreen(),
+        '/list': (context) => ListScreen(),
+        '/addMedicine' : (context) => AddMedicineScreen (),
+        '/addSpecialist': (context) => AddSpecialistScreen (),
       },
+      
       home: LoginScreen(),
     );
   }
