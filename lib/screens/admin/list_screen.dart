@@ -82,7 +82,7 @@ class ListScreen extends StatelessWidget {
             ),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance.collection('medicine').snapshots(),
+                stream: FirebaseFirestore.instance.collection('medicines').snapshots(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
                   final docs = snapshot.data!.docs;
@@ -96,7 +96,7 @@ class ListScreen extends StatelessWidget {
                       return Card(
                         margin: const EdgeInsets.symmetric(vertical: 6),
                         child: ListTile(
-                          title: Text(medicine['medName']),
+                          title: Text(medicine['name']),
                           subtitle: Text('Inventory: ${medicine['inventory']}'),
                         ),
                       );

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart'; // Add in pubspec.yaml
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 
 
@@ -25,14 +27,46 @@ final Map<String, String> drawerRoutes = {
 
 
   final Map<String, String> stats = {
-    "Medicine Store": "120",
-    "Delivery Boys": "15",
-    "Active Orders": "35",
-    "Pending Orders": "8",
-    "Medicine": "230"
+    "Medicine Store": "0",
+    "Delivery Boys": "0",
+    "Active Orders": "0",
+    "Pending Orders": "0",
+    "Medicine": "0"
   };
+  bool isLoading = true;
+  Future<void> fetchStats() async {
+  final storeSnap = await FirebaseFirestore.instance.collection('medicalstores').get();
+  final deliverySnap = await FirebaseFirestore.instance.collection('deliveryboys').get();
+  final medicineSnap = await FirebaseFirestore.instance.collection('medicine').get();
+  final ordersSnap = await FirebaseFirestore.instance.collection('orders').get();
+
+  int activeOrders = 0;
+  int pendingOrders = 0;
+
+  for (var doc in ordersSnap.docs) {
+    final status = doc['status'] ?? '';
+    if (status == 'active') activeOrders++;
+    if (status == 'pending') pendingOrders++;
+  }
+
+  setState(() {
+    stats = {
+      "Medicine Store": storeSnap.docs.length,
+      "Delivery Boys": deliverySnap.docs.length,
+      "Active Orders": activeOrders,
+      "Pending Orders": pendingOrders,
+      "Medicine": medicineSnap.docs.length
+    };
+    isLoading = false;
+  });
+}
+
 
   @override
+  void initState() {
+  super.initState();
+  fetchStats();
+}
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
@@ -110,47 +144,49 @@ final Map<String, String> drawerRoutes = {
         child: Column(
           children: [
             // Boxes
-            Wrap(
-              spacing: 16,
-              runSpacing: 16,
-              children: stats.entries.map((entry) {
-                return AnimatedContainer(
-                  duration: Duration(milliseconds: 500),
-                  curve: Curves.easeInOut,
-                  padding: const EdgeInsets.all(16),
-                  width: MediaQuery.of(context).size.width / 2 - 24,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border(
-                      bottom: BorderSide(color: Colors.amber, width: 3),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.shade200,
-                        blurRadius: 10,
-                        spreadRadius: 2,
-                        offset: const Offset(0, 5),
-                      )
-                    ],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(entry.key,
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 8),
-                      Text(entry.value,
-                          style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green)),
-                    ],
-                  ),
-                );
-              }).toList(),
+           isLoading
+  ? Center(child: CircularProgressIndicator())
+  : Wrap(
+      spacing: 16,
+      runSpacing: 16,
+      children: stats.entries.map((entry) {
+        return AnimatedContainer(
+          duration: Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+          padding: const EdgeInsets.all(16),
+          width: MediaQuery.of(context).size.width / 2 - 24,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              bottom: BorderSide(color: Colors.amber, width: 3),
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.shade200,
+                blurRadius: 10,
+                spreadRadius: 2,
+                offset: const Offset(0, 5),
+              )
+            ],
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(entry.key,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Text(entry.value.toString(),
+                  style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green)),
+            ],
+          ),
+        );
+      }).toList(),
+    ),
+
             const SizedBox(height: 30),
             // Bar Graph Title
             const Align(
