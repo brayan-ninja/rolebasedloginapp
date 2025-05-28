@@ -12,120 +12,109 @@ class PharmaGoDashboard extends StatefulWidget {
   _PharmaGoDashboardState createState() => _PharmaGoDashboardState();
 }
 
-class _PharmaGoDashboardState extends State<PharmaGoDashboard>{
+class _PharmaGoDashboardState extends State<PharmaGoDashboard> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-final Map<String, String> drawerRoutes = {
-  'List': '/list',
-  'Orders': '/orders',
-  'Delivery': '/delivery',
-  'Medical Store': '/medicalstore',
-  'Settings': '/settings',
-  'Notifications': '/notifications',
-};
+  late Future<Map<String, String>> futureStats;
 
-
-
-  final Map<String, String> stats = {
-    "Medicine Store": "0",
-    "Delivery Boys": "0",
-    "Active Orders": "0",
-    "Pending Orders": "0",
-    "Medicine": "0"
+  final Map<String, String> drawerRoutes = {
+    'List': '/list',
+    'Orders': '/orders',
+    'Delivery': '/delivery',
+    'Medical Store': '/medicalstore',
+    'Settings': '/settings',
+    'Notifications': '/notifications',
   };
-  bool isLoading = true;
-  Future<void> fetchStats() async {
-  final storeSnap = await FirebaseFirestore.instance.collection('medicalstores').get();
-  final deliverySnap = await FirebaseFirestore.instance.collection('deliveryboys').get();
-  final medicineSnap = await FirebaseFirestore.instance.collection('medicine').get();
-  final ordersSnap = await FirebaseFirestore.instance.collection('orders').get();
 
-  int activeOrders = 0;
-  int pendingOrders = 0;
+  Future<Map<String, String>> fetchStats() async {
+    final storeSnap = await FirebaseFirestore.instance.collection('medicalstores').get();
+    final deliverySnap = await FirebaseFirestore.instance.collection('deliveryboys').get();
+    final medicineSnap = await FirebaseFirestore.instance.collection('medicines').get();
+    final ordersSnap = await FirebaseFirestore.instance.collection('orders').get();
 
-  for (var doc in ordersSnap.docs) {
-    final status = doc['status'] ?? '';
-    if (status == 'active') activeOrders++;
-    if (status == 'pending') pendingOrders++;
-  }
+    int activeOrders = 0;
+    int pendingOrders = 0;
 
-  setState(() {
-    stats = {
-      "Medicine Store": storeSnap.docs.length,
-      "Delivery Boys": deliverySnap.docs.length,
-      "Active Orders": activeOrders,
-      "Pending Orders": pendingOrders,
-      "Medicine": medicineSnap.docs.length
+    for (var doc in ordersSnap.docs) {
+      var status = doc['status']?.toString().toLowerCase();
+      if (status == 'active') activeOrders++;
+      if (status == 'pending') pendingOrders++;
+    }
+
+    return {
+      "Medicine Store": storeSnap.docs.length.toString(),
+      "Delivery Boys": deliverySnap.docs.length.toString(),
+      "Active Orders": activeOrders.toString(),
+      "Pending Orders": pendingOrders.toString(),
+      "Medicine": medicineSnap.docs.length.toString(),
     };
-    isLoading = false;
-  });
-}
-
+  }
 
   @override
   void initState() {
-  super.initState();
-  fetchStats();
-}
+    super.initState();
+    futureStats = fetchStats(); // Only call once and store
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.white,
       drawer: Drawer(
-  backgroundColor: Colors.black,
-  child: Column(
-    children: [
-      const DrawerHeader(
-        decoration: BoxDecoration(color: Colors.black),
+        backgroundColor: Colors.black,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CircleAvatar(
-              backgroundImage: AssetImage("assets/images/logo.jpg"),
-              radius: 30,
+            const DrawerHeader(
+              decoration: BoxDecoration(color: Colors.black),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    backgroundImage: AssetImage("assets/images/logo.jpg"),
+                    radius: 30,
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'PharmaGo Menu',
+                    style: TextStyle(color: Colors.white, fontSize: 18),
+                  ),
+                ],
+              ),
             ),
-            SizedBox(height: 10),
-            Text(
-              'PharmaGo Menu',
-              style: TextStyle(color: Colors.white, fontSize: 18),
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: drawerRoutes.entries.map((entry) {
+                  return ListTile(
+                    title: Text(entry.key, style: const TextStyle(color: Colors.white)),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, entry.value);
+                    },
+                  );
+                }).toList(),
+              ),
             ),
+            const Divider(color: Colors.white),
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.greenAccent),
+              title: const Text('Logout', style: TextStyle(color: Color.fromARGB(255, 255, 243, 243))),
+              onTap: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.pushReplacementNamed(context, '/login');
+              },
+            ),
+            const SizedBox(height: 10),
           ],
         ),
       ),
-      Expanded(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: drawerRoutes.entries.map((entry) {
-            return ListTile(
-              title: Text(entry.key, style: const TextStyle(color: Colors.white)),
-              onTap: () {
-                Navigator.pop(context); // close drawer
-                Navigator.pushNamed(context, entry.value); // navigate
-              },
-            );
-          }).toList(),
-        ),
-      ),
-      const Divider(color: Colors.white),
-      ListTile(
-        leading: const Icon(Icons.logout, color: Colors.greenAccent),
-        title: const Text('Logout', style: TextStyle(color: Color.fromARGB(255, 255, 243, 243))),
-        onTap: () async {
-  await FirebaseAuth.instance.signOut();
-  Navigator.pushReplacementNamed(context, '/login'); // Or your login screen
-},
-      ),
-      const SizedBox(height: 10),
-    ],
-  ),
-),
-
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 2,
         title: Row(
           children: [
-            Image.asset("assets/images/logo.jpg", height: 30), // logo
+            Image.asset("assets/images/logo.jpg", height: 30),
             const SizedBox(width: 10),
             const Text('PharmaGo',
                 style: TextStyle(
@@ -143,52 +132,63 @@ final Map<String, String> drawerRoutes = {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Boxes
-           isLoading
-  ? Center(child: CircularProgressIndicator())
-  : Wrap(
-      spacing: 16,
-      runSpacing: 16,
-      children: stats.entries.map((entry) {
-        return AnimatedContainer(
-          duration: Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-          padding: const EdgeInsets.all(16),
-          width: MediaQuery.of(context).size.width / 2 - 24,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border(
-              bottom: BorderSide(color: Colors.amber, width: 3),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.shade200,
-                blurRadius: 10,
-                spreadRadius: 2,
-                offset: const Offset(0, 5),
-              )
-            ],
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(entry.key,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Text(entry.value.toString(),
-                  style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green)),
-            ],
-          ),
-        );
-      }).toList(),
-    ),
+            FutureBuilder<Map<String, String>>(
+              future: futureStats,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
+                if (snapshot.hasError) {
+                  return Center(child: Text("Error: ${snapshot.error}"));
+                }
+
+                final stats = snapshot.data!;
+
+                return Wrap(
+                  spacing: 16,
+                  runSpacing: 16,
+                  children: stats.entries.map((entry) {
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut,
+                      padding: const EdgeInsets.all(16),
+                      width: MediaQuery.of(context).size.width / 2 - 24,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: const Border(
+                          bottom: BorderSide(color: Colors.amber, width: 3),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.shade200,
+                            blurRadius: 10,
+                            spreadRadius: 2,
+                            offset: const Offset(0, 5),
+                          )
+                        ],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(entry.key,
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 8),
+                          Text(entry.value,
+                              style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green)),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                );
+              },
+            ),
             const SizedBox(height: 30),
-            // Bar Graph Title
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -197,21 +197,23 @@ final Map<String, String> drawerRoutes = {
               ),
             ),
             const SizedBox(height: 20),
-            // Bar Graph
             SizedBox(
               height: 200,
               child: BarChart(
                 BarChartData(
                   borderData: FlBorderData(show: false),
-                  titlesData: FlTitlesData(show: true, bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, _) {
-                        final days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                        return Text(days[value.toInt()]);
-                      },
+                  titlesData: FlTitlesData(
+                    show: true,
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, _) {
+                          final days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                          return Text(days[value.toInt()]);
+                        },
+                      ),
                     ),
-                  )),
+                  ),
                   barGroups: List.generate(7, (index) {
                     return BarChartGroupData(x: index, barRods: [
                       BarChartRodData(
