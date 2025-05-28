@@ -10,6 +10,8 @@ import 'package:login_register_app/screens/reset_password.dart';
 import 'package:login_register_app/screens/admin/list_screen.dart';
 import 'package:login_register_app/screens/admin/addmedicine_screen.dart';
 import 'package:login_register_app/screens/admin/addlist_screen.dart';
+import 'package:login_register_app/screens/admin/medicine_screen.dart';
+import 'package:login_register_app/screens/admin/addstore_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,6 +42,8 @@ class MyApp extends StatelessWidget {
         '/list': (context) => ListScreen(),
         '/addMedicine' : (context) => AddMedicineScreen (),
         '/addSpecialist': (context) => AddSpecialistScreen (),
+        '/medicalstore' : (context) => MedicalStoreScreen (),
+        '/addstore' : (context) => AddMedicalStoreForm (),
       },
       
       home: LoginScreen(),

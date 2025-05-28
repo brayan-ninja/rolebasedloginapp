@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart'; // Add in pubspec.yaml
-
+import 'package:firebase_auth/firebase_auth.dart';
 
 
 
@@ -14,12 +14,14 @@ class _PharmaGoDashboardState extends State<PharmaGoDashboard>{
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
 final Map<String, String> drawerRoutes = {
-  'list': '/list',
+  'List': '/list',
   'Orders': '/orders',
   'Delivery': '/delivery',
-  'Reports': '/reports',
+  'Medical Store': '/medicalstore',
   'Settings': '/settings',
+  'Notifications': '/notifications',
 };
+
 
 
   final Map<String, String> stats = {
@@ -36,42 +38,54 @@ final Map<String, String> drawerRoutes = {
       key: _scaffoldKey,
       backgroundColor: Colors.white,
       drawer: Drawer(
-        backgroundColor: Colors.black,
-        child: ListView(
-          padding: EdgeInsets.zero,
+  backgroundColor: Colors.black,
+  child: Column(
+    children: [
+      const DrawerHeader(
+        decoration: BoxDecoration(color: Colors.black),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            DrawerHeader(
-              decoration: BoxDecoration(color: Colors.black),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  CircleAvatar(
-                    backgroundImage: AssetImage("assets/images/logo.jpg"), // replace with your logo path
-                    radius: 30,
-                  ),
-                  SizedBox(height: 10),
-                  Text('PharmaGo Menu',
-                      style: TextStyle(color: Colors.white, fontSize: 18)),
-                ],
-              ),
+            CircleAvatar(
+              backgroundImage: AssetImage("assets/images/logo.jpg"),
+              radius: 30,
             ),
-          ...drawerRoutes.keys.map(
-  (item) => ListTile(
-    title: Text(item, style: const TextStyle(color: Colors.white)),
-    onTap: () {
-      Navigator.pop(context); // close drawer
-      final routeName = drawerRoutes[item];
-      if (routeName != null) {
-        Navigator.pushNamed(context, "/list");
-
-      }
-    },
-  ),
-),
-
+            SizedBox(height: 10),
+            Text(
+              'PharmaGo Menu',
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            ),
           ],
         ),
       ),
+      Expanded(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: drawerRoutes.entries.map((entry) {
+            return ListTile(
+              title: Text(entry.key, style: const TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context); // close drawer
+                Navigator.pushNamed(context, entry.value); // navigate
+              },
+            );
+          }).toList(),
+        ),
+      ),
+      const Divider(color: Colors.white),
+      ListTile(
+        leading: const Icon(Icons.logout, color: Colors.greenAccent),
+        title: const Text('Logout', style: TextStyle(color: Color.fromARGB(255, 255, 243, 243))),
+        onTap: () async {
+  await FirebaseAuth.instance.signOut();
+  Navigator.pushReplacementNamed(context, '/login'); // Or your login screen
+},
+      ),
+      const SizedBox(height: 10),
+    ],
+  ),
+),
+
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 2,
